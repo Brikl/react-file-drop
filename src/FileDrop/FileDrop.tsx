@@ -1,10 +1,7 @@
-import PropTypes from "prop-types";
-import React, {
-  DragEvent as ReactDragEvent,
-  DragEventHandler as ReactDragEventHandler
-} from "react";
+import PropTypes from 'prop-types';
+import React, { DragEvent as ReactDragEvent, DragEventHandler as ReactDragEventHandler } from 'react';
 
-export type TDropEffects = "copy" | "move" | "link" | "none";
+export type TDropEffects = 'copy' | 'move' | 'link' | 'none';
 
 export interface IFileDropProps {
   className?: string;
@@ -12,15 +9,12 @@ export interface IFileDropProps {
   draggingOverFrameClassName?: string;
   draggingOverTargetClassName?: string;
   frame?: HTMLElement | Document;
-  onFrameDragEnter?: (event: DragEvent) => void;
-  onFrameDragLeave?: (event: DragEvent) => void;
-  onFrameDrop?: (event: DragEvent) => void;
+  onFrameDragEnter?: (event:DragEvent) => void;
+  onFrameDragLeave?: (event:DragEvent) => void;
+  onFrameDrop?: (event:DragEvent) => void;
   onDragOver?: ReactDragEventHandler<HTMLDivElement>;
   onDragLeave?: ReactDragEventHandler<HTMLDivElement>;
-  onDrop?: (
-    files: FileList | null,
-    event: ReactDragEvent<HTMLDivElement>
-  ) => any;
+  onDrop?: (files:FileList | null, event:ReactDragEvent<HTMLDivElement>) => any;
   dropEffect?: TDropEffects;
 }
 export interface IFileDropState {
@@ -30,15 +24,12 @@ export interface IFileDropState {
 
 class FileDrop extends React.PureComponent<IFileDropProps, IFileDropState> {
   static defaultProps = {
-    dropEffect: "copy" as TDropEffects,
-    frame:
-      typeof window !== `undefined` && window.document
-        ? window.document
-        : undefined,
-    className: "file-drop",
-    targetClassName: "file-drop-target",
-    draggingOverFrameClassName: "file-drop-dragging-over-frame",
-    draggingOverTargetClassName: "file-drop-dragging-over-target"
+    dropEffect: ('copy' as TDropEffects),
+    frame: typeof window !== `undefined` && window.document ? window.document : undefined,
+    className: 'file-drop',
+    targetClassName: 'file-drop-target',
+    draggingOverFrameClassName: 'file-drop-dragging-over-frame',
+    draggingOverTargetClassName: 'file-drop-dragging-over-target',
   };
 
   static propTypes = {
@@ -49,74 +40,59 @@ class FileDrop extends React.PureComponent<IFileDropProps, IFileDropState> {
     onDragOver: PropTypes.func,
     onDragLeave: PropTypes.func,
     onDrop: PropTypes.func,
-    dropEffect: PropTypes.oneOf(["copy", "move", "link", "none"]),
-    frame: (props: any, propName: any, componentName: any) => {
+    dropEffect: PropTypes.oneOf(['copy', 'move', 'link', 'none']),
+    frame: (props:any, propName:any, componentName:any) => {
       const prop = props[propName];
       if (prop == null) {
-        return new Error(
-          "Warning: Required prop `" +
-            propName +
-            "` was not specified in `" +
-            componentName +
-            "`"
-        );
+        return new Error('Warning: Required prop `' + propName + '` was not specified in `' + componentName + '`');
       }
-      if (
-        prop !== document &&
-        prop !== window &&
-        !(prop instanceof HTMLElement)
-      ) {
-        return new Error(
-          "Warning: Prop `" +
-            propName +
-            "` must be one of the following: document, HTMLElement!"
-        );
+      if (prop !== document && prop !== window && !(prop instanceof HTMLElement)) {
+        return new Error('Warning: Prop `' + propName + '` must be one of the following: document, HTMLElement!');
       }
     },
     onFrameDragEnter: PropTypes.func,
     onFrameDragLeave: PropTypes.func,
-    onFrameDrop: PropTypes.func
+    onFrameDrop: PropTypes.func,
   };
 
   frameDragCounter: number;
 
-  constructor(props: IFileDropProps) {
+  constructor(props:IFileDropProps) {
     super(props);
     this.frameDragCounter = 0;
     this.state = { draggingOverFrame: false, draggingOverTarget: false };
   }
 
-  static isIE = () =>
-    window &&
-    (window.navigator.userAgent.indexOf("MSIE") !== -1 ||
-      window.navigator.appVersion.indexOf("Trident/") > 0);
+  static isIE = () => (
+    (window && ((window.navigator.userAgent.indexOf('MSIE') !== -1) || (window.navigator.appVersion.indexOf('Trident/') > 0)))
+  )
 
-  static eventHasFiles = (event: DragEvent | ReactDragEvent<HTMLElement>) => {
+  static eventHasFiles = (event:DragEvent | ReactDragEvent<HTMLElement>) => {
     // In most browsers this is an array, but in IE11 it's an Object :(
     let hasFiles = false;
     if (event.dataTransfer) {
       const types = event.dataTransfer.types;
       for (const keyOrIndex in types) {
-        if (types[keyOrIndex] === "Files") {
+        if (types[keyOrIndex] === 'Files') {
           hasFiles = true;
           break;
         }
       }
     }
     return hasFiles;
-  };
+  }
 
   resetDragging = () => {
     this.frameDragCounter = 0;
     this.setState({ draggingOverFrame: false, draggingOverTarget: false });
-  };
+  }
 
-  handleWindowDragOverOrDrop = (event: DragEvent) => {
+  handleWindowDragOverOrDrop = (event:DragEvent) => {
     // This prevents the browser from trying to load whatever file the user dropped on the window
     event.preventDefault();
-  };
+  }
 
-  handleFrameDrag = (event: DragEvent) => {
+  handleFrameDrag = (event:DragEvent) => {
     // Only allow dragging of files
     if (!FileDrop.eventHasFiles(event)) return;
 
@@ -124,7 +100,7 @@ class FileDrop extends React.PureComponent<IFileDropProps, IFileDropState> {
     // the event bubbles up to the frame. By keeping count of how many "dragenters" we get, we can tell if they are still
     // "draggingOverFrame" (b/c you get one "dragenter" initially, and one "dragenter"/one "dragleave" for every bubble)
     // This is far better than a "dragover" handler, which would be calling `setState` continuously.
-    this.frameDragCounter += event.type === "dragenter" ? 1 : -1;
+    this.frameDragCounter += (event.type === 'dragenter' ? 1 : -1);
 
     if (this.frameDragCounter === 1) {
       this.setState({ draggingOverFrame: true });
@@ -137,54 +113,53 @@ class FileDrop extends React.PureComponent<IFileDropProps, IFileDropState> {
       if (this.props.onFrameDragLeave) this.props.onFrameDragLeave(event);
       return;
     }
-  };
+  }
 
-  handleFrameDrop = (event: DragEvent) => {
+  handleFrameDrop = (event:DragEvent) => {
     if (!this.state.draggingOverTarget) {
       this.resetDragging();
       if (this.props.onFrameDrop) this.props.onFrameDrop(event);
     }
-  };
+  }
 
-  handleDragOver: ReactDragEventHandler<HTMLDivElement> = event => {
+  handleDragOver: ReactDragEventHandler<HTMLDivElement> = (event) => {
     if (FileDrop.eventHasFiles(event)) {
       this.setState({ draggingOverTarget: true });
-      if (!FileDrop.isIE() && this.props.dropEffect)
-        event.dataTransfer.dropEffect = this.props.dropEffect;
+      if (!FileDrop.isIE() && this.props.dropEffect) event.dataTransfer.dropEffect = this.props.dropEffect;
       if (this.props.onDragOver) this.props.onDragOver(event);
     }
-  };
+  }
 
-  handleDragLeave: ReactDragEventHandler<HTMLDivElement> = event => {
+  handleDragLeave: ReactDragEventHandler<HTMLDivElement> = (event) => {
     this.setState({ draggingOverTarget: false });
     if (this.props.onDragLeave) this.props.onDragLeave(event);
-  };
+  }
 
-  handleDrop: ReactDragEventHandler<HTMLDivElement> = event => {
+  handleDrop: ReactDragEventHandler<HTMLDivElement> = (event) => {
     if (this.props.onDrop && FileDrop.eventHasFiles(event)) {
-      const files = event.dataTransfer ? event.dataTransfer.files : null;
+      const files = (event.dataTransfer) ? event.dataTransfer.files : null;
       this.props.onDrop(files, event);
     }
     this.resetDragging();
-  };
+  }
 
-  stopFrameListeners = (frame: IFileDropProps["frame"]) => {
+  stopFrameListeners = (frame:IFileDropProps['frame']) => {
     if (frame) {
-      frame.removeEventListener("dragenter", this.handleFrameDrag);
-      frame.removeEventListener("dragleave", this.handleFrameDrag);
-      frame.removeEventListener("drop", this.handleFrameDrop);
+      frame.removeEventListener('dragenter', this.handleFrameDrag);
+      frame.removeEventListener('dragleave', this.handleFrameDrag);
+      frame.removeEventListener('drop', this.handleFrameDrop);
     }
-  };
+  }
 
-  startFrameListeners = (frame: IFileDropProps["frame"]) => {
+  startFrameListeners = (frame:IFileDropProps['frame']) => {
     if (frame) {
-      frame.addEventListener("dragenter", this.handleFrameDrag);
-      frame.addEventListener("dragleave", this.handleFrameDrag);
-      frame.addEventListener("drop", this.handleFrameDrop);
+      frame.addEventListener('dragenter', this.handleFrameDrag);
+      frame.addEventListener('dragleave', this.handleFrameDrag);
+      frame.addEventListener('drop', this.handleFrameDrop);
     }
-  };
+  }
 
-  componentWillReceiveProps(nextProps: IFileDropProps) {
+  componentWillReceiveProps(nextProps:IFileDropProps) {
     if (nextProps.frame !== this.props.frame) {
       this.resetDragging();
       this.stopFrameListeners(this.props.frame);
@@ -195,14 +170,14 @@ class FileDrop extends React.PureComponent<IFileDropProps, IFileDropState> {
   componentDidMount() {
     this.startFrameListeners(this.props.frame);
     this.resetDragging();
-    window.addEventListener("dragover", this.handleWindowDragOverOrDrop);
-    window.addEventListener("drop", this.handleWindowDragOverOrDrop);
+    window.addEventListener('dragover', this.handleWindowDragOverOrDrop);
+    window.addEventListener('drop', this.handleWindowDragOverOrDrop);
   }
 
   componentWillUnmount() {
     this.stopFrameListeners(this.props.frame);
-    window.removeEventListener("dragover", this.handleWindowDragOverOrDrop);
-    window.removeEventListener("drop", this.handleWindowDragOverOrDrop);
+    window.removeEventListener('dragover', this.handleWindowDragOverOrDrop);
+    window.removeEventListener('drop', this.handleWindowDragOverOrDrop);
   }
 
   render() {
@@ -211,15 +186,14 @@ class FileDrop extends React.PureComponent<IFileDropProps, IFileDropState> {
       className,
       targetClassName,
       draggingOverFrameClassName,
-      draggingOverTargetClassName
-    } = this.props;
-    const { draggingOverTarget, draggingOverFrame } = this.state;
+      draggingOverTargetClassName } = this.props;
+    const {
+      draggingOverTarget,
+      draggingOverFrame } = this.state;
 
     let fileDropTargetClassName = targetClassName;
-    if (draggingOverFrame)
-      fileDropTargetClassName += ` ${draggingOverFrameClassName}`;
-    if (draggingOverTarget)
-      fileDropTargetClassName += ` ${draggingOverTargetClassName}`;
+    if (draggingOverFrame) fileDropTargetClassName += ` ${draggingOverFrameClassName}`;
+    if (draggingOverTarget) fileDropTargetClassName += ` ${draggingOverTargetClassName}`;
 
     return (
       <div
@@ -227,8 +201,10 @@ class FileDrop extends React.PureComponent<IFileDropProps, IFileDropState> {
         onDragOver={this.handleDragOver}
         onDragLeave={this.handleDragLeave}
         onDrop={this.handleDrop}
-      >
-        <div className={fileDropTargetClassName}>{children}</div>
+       >
+        <div className={fileDropTargetClassName}>
+          {children}
+        </div>
       </div>
     );
   }
