@@ -121,7 +121,7 @@ var FileDrop = /** @class */ (function (_super) {
     };
     FileDrop.defaultProps = {
         dropEffect: 'copy',
-        frame: window ? window.document : undefined,
+        frame: typeof window !== `undefined` && window.document ? window.document : undefined,
         className: 'file-drop',
         targetClassName: 'file-drop-target',
         draggingOverFrameClassName: 'file-drop-dragging-over-frame',
